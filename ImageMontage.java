@@ -9,6 +9,9 @@ import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 
+import com.drew.metadata.Metadata;
+import com.drew.metadata.exif.ExifIFD0Directory;
+
 public class ImageMontage {
   public static void main(String[] args) {
     JFrame frame = new JFrame("Image Montage");
@@ -34,6 +37,18 @@ class MontagePanel extends JPanel {
       Arrays.sort(files, new Comparator<File>() {
         @Override
         public int compare(File a, File b) {
+          try {
+            Metadata metadataA = com.drew.imaging.ImageMetadataReader.readMetadata(a);
+            ExifIFD0Directory directoryA = metadataA.getFirstDirectoryOfType(ExifIFD0Directory.class);
+            if (directoryA != null) {
+              return directoryA.getDate(ExifIFD0Directory.TAG_DATETIME).compareTo(
+                  com.drew.imaging.ImageMetadataReader.readMetadata(b)
+                      .getFirstDirectoryOfType(ExifIFD0Directory.class)
+                      .getDate(ExifIFD0Directory.TAG_DATETIME));
+            }
+          } catch (Exception e) {
+            // Do nothing
+          }
           return Long.compare(a.lastModified(), b.lastModified());
         }
       });
@@ -55,6 +70,7 @@ class MontagePanel extends JPanel {
     int x = 0;
     int y = 0;
     int maxHeight = 0;
+
 
     // Determine the size of the frame based on the desired aspect ratio
     int frameWidth = images.length * 80;
