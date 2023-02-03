@@ -2,6 +2,8 @@ import java.awt.Graphics;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Comparator;
 import javax.imageio.ImageIO;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
@@ -29,6 +31,12 @@ class MontagePanel extends JPanel {
     int result = chooser.showOpenDialog(this);
     if (result == JFileChooser.APPROVE_OPTION) {
       File[] files = chooser.getSelectedFiles();
+      Arrays.sort(files, new Comparator<File>() {
+        @Override
+        public int compare(File a, File b) {
+          return Long.compare(a.lastModified(), b.lastModified());
+        }
+      });
       images = new BufferedImage[files.length];
       for (int i = 0; i < files.length; i++) {
         try {
@@ -65,4 +73,3 @@ class MontagePanel extends JPanel {
     setSize(frameWidth, frameHeight);
   }
 }
-
